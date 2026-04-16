@@ -1,69 +1,55 @@
 import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { ref, set } from 'firebase/database';
+import { ref, set, push } from 'firebase/database';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { auth, db } from '../scripts/firebase-config';
 
-export default function CreateUser() {
-    const [nome, setNome] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+
+export default function CreateTask() {
+    const [date, setDate] = useState("")
+    const [task, setTask] = useState("")
     const [erro, setErro] = useState("")
     const router = useRouter();
 
-    function userCreate(){
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Signed up 
-                const user = userCredential.user;
-                // Cria registro no usuário no banco
-                set(ref(db, 'usuarios/' + user.uid), {
-                    nome: nome,
-                    email: email
-                });
-                router.push('/');
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                setErro(errorMessage);
-        });
+    function taskCreate(){
+        //Obtem a referencia do nó tasks do usúario que está logado
+       const taskAuth = ref(db, 'tasks/' + auth.currentUser?.uid);
+       //Define um ID para a tarefa
+       const newTask = push(taskAuth);
+       //Cria a tarefa na base de dados
+       set(newTask, {
+        date: date,
+        task: task
+       })
+
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.titulo}>Criar Usuário</Text>
+            <Text style={styles.titulo}>Criar Tarefa</Text>
             
             <Text>{erro}</Text>
             
             <TextInput
                 style={styles.input}
-                value={nome}
-                onChangeText={setNome}
-                placeholder='Nome'
+                value={date}
+                onChangeText={setDate}
+                placeholder='Data'
             />
 
             <TextInput
                 style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder='E-mail'
-            />
-
-            <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder='Senha'
-                secureTextEntry={true}
+                value={task}
+                onChangeText={setTask}
+                placeholder='Tarefa'
             />
 
             <TouchableOpacity
                 style={styles.button}
-                onPress={userCreate}
+                onPress={taskCreate}
             >
-                <Text style={styles.textButton}>Criar usuário</Text>
+                <Text style={styles.textButton}>Salvar</Text>
             </TouchableOpacity>
         </View>
     );

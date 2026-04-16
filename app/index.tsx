@@ -1,27 +1,28 @@
 import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { auth } from '../scripts/firebase-config';
-import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Index() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [erro, setErro] = useState("")
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [erro, setErro] = useState("");
+
     const router = useRouter();
 
-    function login() {
+    function login(){
         signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                router.push('/(tabs)');
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                setErro(errorMessage);
-            });
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            router.push('/(tabs)/tasks');
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            setErro(errorMessage);
+        });
     }
 
     return (
@@ -45,7 +46,7 @@ export default function Index() {
                 onChangeText={setPassword}
             />
 
-            <TouchableOpacity
+            <TouchableOpacity 
                 style={styles.button}
                 onPress={login}
             >
